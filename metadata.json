@@ -1,0 +1,5 @@
+{
+  "name": "Interactive Market Simulator",
+  "description": "An interactive tool to simulate market supply and demand shifts (PASIFIC and WET PIGS) for IGCSE Economics.",
+  "requestFramePermissions": []
+}
