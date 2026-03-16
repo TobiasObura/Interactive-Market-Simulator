@@ -106,6 +106,80 @@ export default function App() {
     return null;
   };
 
+  const renderAnalysis = () => {
+    if (totalDemandShift === 0 && totalSupplyShift === 0) {
+      return (
+        <div className="space-y-3 text-blue-50 text-sm leading-relaxed">
+          <p><strong className="text-white">1. Baseline Assumption (Ceteris Paribus):</strong> All external factors are held constant. The market is in repose.</p>
+          <p><strong className="text-white">2. Market Equilibrium:</strong> The intentions of buyers and sellers are perfectly synchronized.</p>
+          <p><strong className="text-white">3. Market Clearing:</strong> At the pivot point of <strong>KES 250</strong>, Quantity Demanded (QD) equals Quantity Supplied (QS) at <strong>6.0 units</strong>. There is no excess demand or excess supply.</p>
+        </div>
+      );
+    }
+
+    const qdAtOldPrice = 6 + totalDemandShift;
+    const qsAtOldPrice = 6 + totalSupplyShift;
+    
+    const isShortage = qdAtOldPrice > qsAtOldPrice;
+    const isSurplus = qsAtOldPrice > qdAtOldPrice;
+    const gap = Math.abs(qdAtOldPrice - qsAtOldPrice);
+
+    return (
+      <div className="space-y-3 text-blue-50 text-sm leading-relaxed">
+        <p>
+          <strong className="text-white">1. Change in the Factor (The Shift):</strong> An external "weight" (Ceteris Paribus variable) has been added to the market seesaw. 
+          {totalDemandShift > 0 && " Demand shifts to the Right."}
+          {totalDemandShift < 0 && " Demand shifts to the Left."}
+          {totalSupplyShift > 0 && " Supply shifts to the Right."}
+          {totalSupplyShift < 0 && " Supply shifts to the Left."}
+        </p>
+        
+        {isShortage && (
+          <p>
+            <strong className="text-white">2. Market Disequilibrium:</strong> At the original price of KES 250, there is a split second of imbalance. We now have <strong>Excess Demand (a shortage)</strong> of {gap.toFixed(1)} units because QD ({qdAtOldPrice.toFixed(1)}) &gt; QS ({qsAtOldPrice.toFixed(1)}).
+          </p>
+        )}
+        {isSurplus && (
+          <p>
+            <strong className="text-white">2. Market Disequilibrium:</strong> At the original price of KES 250, there is a split second of imbalance. We now have <strong>Excess Supply (a surplus)</strong> of {gap.toFixed(1)} units because QS ({qsAtOldPrice.toFixed(1)}) &gt; QD ({qdAtOldPrice.toFixed(1)}).
+          </p>
+        )}
+        {!isShortage && !isSurplus && (
+          <p>
+            <strong className="text-white">2. Market Disequilibrium:</strong> The shifts in Demand and Supply have perfectly offset each other at the original price.
+          </p>
+        )}
+
+        {isShortage && (
+          <p>
+            <strong className="text-white">3. The Price Signal:</strong> Buyers, sensing the scarcity, begin "price bidding." They offer more money to secure the limited goods, pushing the price <strong>UP</strong>.
+          </p>
+        )}
+        {isSurplus && (
+          <p>
+            <strong className="text-white">3. The Price Signal:</strong> Sellers, sensing the glut, begin discounting to clear unsold inventory, pushing the price <strong>DOWN</strong>.
+          </p>
+        )}
+        {!isShortage && !isSurplus && (
+          <p>
+            <strong className="text-white">3. The Price Signal:</strong> Because there is no shortage or surplus at the original price, there is no pressure on the price to change.
+          </p>
+        )}
+
+        <p>
+          <strong className="text-white">4. The Adjustment (Movement):</strong> This price signal causes a <em>movement along the curves</em>. 
+          {isShortage ? " Producers are incentivized by higher prices to supply more, while some buyers are priced out." : ""}
+          {isSurplus ? " Buyers are incentivized by lower prices to demand more, while some producers cut back production." : ""}
+          {!isShortage && !isSurplus ? " The market adjusts instantly to the new quantities." : ""}
+        </p>
+
+        <p>
+          <strong className="text-white">5. New Equilibrium:</strong> The market seesaw re-centers its pivot. The market settles at the new Market Clearing price of <strong>KES {newPe.toFixed(0)}</strong>, where QD = QS at <strong>{newQe.toFixed(1)} units</strong>.
+        </p>
+      </div>
+    );
+  };
+
   const ControlSelect = ({ label, description, val, onUpdate, id, negativeLabel, positiveLabel }: ControlSelectProps) => (
     <div className="flex flex-col justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
       <div className="mb-2">
@@ -204,24 +278,11 @@ export default function App() {
           </div>
 
           <div className="bg-[#003366] rounded-2xl p-6 text-white shadow-lg">
-            <h3 className="font-bold text-lg mb-2 flex items-center text-[#00AEEF]">
+            <h3 className="font-bold text-lg mb-4 flex items-center text-[#00AEEF]">
               <Info className="w-5 h-5 mr-2" />
-              Economic Analysis (The "Invisible Hand" at Work)
+              Step-by-Step Economic Analysis (The "Invisible Hand" at Work)
             </h3>
-            <p className="text-blue-100 text-sm leading-relaxed">
-              {totalDemandShift === 0 && totalSupplyShift === 0 ? (
-                "The market is perfectly cleared at KES 250. Buyers willing to pay KES 250 or more get the good, and sellers willing to sell for KES 250 or less make a trade. No shortages, no surpluses."
-              ) : (
-                <span>
-                  The market has experienced a shock!
-                  {totalDemandShift > 0 && " Increased demand puts upward pressure on prices. "}
-                  {totalDemandShift < 0 && " Decreased demand forces sellers to drop prices. "}
-                  {totalSupplyShift > 0 && " Increased supply gluts the market, driving prices down. "}
-                  {totalSupplyShift < 0 && " Reduced supply creates scarcity, pushing prices up. "}
-                  The price mechanism automatically adjusts to the new equilibrium at <strong>KES {newPe.toFixed(0)}</strong> to clear the market.
-                </span>
-              )}
-            </p>
+            {renderAnalysis()}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
